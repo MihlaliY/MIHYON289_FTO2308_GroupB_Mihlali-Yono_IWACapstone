@@ -1,18 +1,15 @@
+import {BOOKS_PER_PAGE, authors, genres, books} from "./data.js"
 import {html} from "./references.js"
-import {books, BOOKS_PER_PAGE, authors, genres} from "./data.js"
 
 const listButton = html.list.button
-BOOKS_PER_PAGE
+
 let loadedBooks = 0
 
-listButton.textContent = listButton.innerText = `Show more (${
-  books.length - BOOKS_PER_PAGE
-})`
-/* Show Books*/
-
+listButton.innerText = `Show more (${books.length - BOOKS_PER_PAGE})`
 const mainElement = document.querySelector(".list")
+
+/*show book*/
 const showBooks = (startIndex, endIndex) => {
-  const booksContainer = document.createElement("div")
   for (let i = startIndex; i < endIndex; i++) {
     if (i >= books.length) {
       break
@@ -21,11 +18,18 @@ const showBooks = (startIndex, endIndex) => {
     const bookItemDiv = document.createElement("div")
     bookItemDiv.setAttribute("data-list-items", "")
     bookItemDiv.classList.add("list__items")
+    bookItemDiv.style.gridTemplateColumns = "1fr 2fr"
+    bookItemDiv.style.backgroundColor = "rgba(var( --color-force-dark))"
+    bookItemDiv.style.margin = "50px 50px 50px 10px"
+    bookItemDiv.style.padding = "35px"
+    bookItemDiv.style.borderRadius = "40px"
+
+    const aboutBook = document.createElement("div")
 
     const imageElement = document.createElement("img")
     imageElement.src = book.image
     imageElement.alt = book.title
-    const aboutBook = document.createElement("div")
+    imageElement.style.width = "100px"
 
     const titleElement = document.createElement("h2")
     titleElement.textContent = book.title
@@ -37,21 +41,22 @@ const showBooks = (startIndex, endIndex) => {
     aboutBook.appendChild(titleElement)
     aboutBook.appendChild(authorElement)
     bookItemDiv.appendChild(aboutBook)
-    booksContainer.appendChild(bookItemDiv)
+    mainElement.insertBefore(bookItemDiv, listButton)
   }
-  mainElement.prepend(booksContainer)
 }
 
-// to show the first 36 books when page loads
+/* Show the first 36 books when the page loads */
 document.addEventListener("DOMContentLoaded", () => {
-  showBooks(loadedBooks, loadedBooks + BOOKS_PER_PAGE)
-  loadedBooks = loadedBooks + BOOKS_PER_PAGE
+  showBooks(0, BOOKS_PER_PAGE)
+  loadedBooks = BOOKS_PER_PAGE
 
   if (loadedBooks >= books.length) {
     listButton.style.display = "none"
   }
 })
-/* Show More books */
+
+/**
+ * Function to show more books when "Show more" button is clicked */
 const showMoreBooks = () => {
   const startIndex = loadedBooks
   let endIndex = startIndex + BOOKS_PER_PAGE
@@ -67,41 +72,51 @@ const showMoreBooks = () => {
 listButton.addEventListener("click", showMoreBooks)
 
 /* Preview */
-const overlayDialog = html.list.active
-/**
- * This function will fire when the user clicks on any of the book choices displaying to the
- * user the preview about the respective book
- */
-
 const previewHandler = (event) => {
-  const overlayBlurImage = html.list.blur
-  const overlayImage = html.list.image
-  const overlayTitle = html.list.title
-  const overlaySubtitle = html.list.subtitle
-  const overlayDescription = html.list.description
+  const clickedListItem = event.target.closest("[data-list-items]")
+
+  if (!clickedListItem) {
+    return
+  }
+
+  const index = Array.from(mainElement.children).indexOf(clickedListItem)
+  const book = books[index]
+
+  const blurImage = html.preview.listBlur
+  const previewImage = html.preview.listImage
+  const previewTitle = html.preview.listTitle
+  const previewSubtitle = html.preview.listSubtitle
+  const previewDescription = html.preview.listDescription
+
+  blurImage.src = book.image
+  previewImage.src = book.image
+  previewTitle.textContent = book.title
+  previewSubtitle.textContent = `By ${authors[book.author]}`
+  previewDescription.textContent = book.description
+
+  const preview = html.preview.listActive
+  preview.showModal()
 }
 
-const bookList = document.querySelector("[data-list-items]")
+mainElement.addEventListener("click", previewHandler)
 
-bookList.addEventListener("click", previewHandler)
-
-// const mainElement = document.querySelector("main.list")
-// mainElement.addEventListener("click", previewHandler)
+/* Close preview */
+const closePreview = () => {
+  const dialog = document.querySelector("[data-list-active]")
+  dialog.close()
+}
 
 const closeButton = document.querySelector("[data-list-close]")
-closeButton.addEventListener("click", () => {
-  overlayDialog.close()
-})
+closeButton.addEventListener("click", closePreview)
 
-/* Search */
-
+/* Header Search */
 const searchHandler = (event) => {
   event.preventDefault()
   const dialog = html.search.overlay
   dialog.showModal()
-  const searchGenre = html.search.genres
 
-  searchGenre.innerHTML = " "
+  const searchGenre = html.search.genre
+  searchGenre.innerHTML = ""
 
   for (const genreId in genres) {
     const option = document.createElement("option")
@@ -110,8 +125,8 @@ const searchHandler = (event) => {
     searchGenre.appendChild(option)
   }
 
-  const searchAuthor = html.search.authors
-  searchAuthor.innerHTML = " "
+  const searchAuthor = html.search.author
+  searchAuthor.innerHTML = ""
 
   for (const authorId in authors) {
     const option = document.createElement("option")
@@ -129,31 +144,35 @@ cancelSearch.addEventListener("click", () => {
 
 html.header.search.addEventListener("click", searchHandler)
 
-const dialogSearch = document.querySelector(".overlay__button_primary")
+/* search for matches */
 
-/* overlaySearch */
-const overlayRow = document.querySelector(".overlay__row")
-const searchButton = overlayRow.querySelector('[type="submit"][form="search"]')
+const searchButton = document.querySelector(
+  '[data-search-overlay] .overlay__row [form="search"]'
+)
 
-// const searchButtonHandler = (event) => {}
+const searchForm = html.header.search
 
-// searchButton.addEventListener("click", searchButtonHandler)
+const searchFormHandler = () => {
+  const searchTitle = html.search.title
+  const searchGenre = html.search.genre
+  const searchAuthor = html.search.author
 
-/* Theme settings  */
-const selectTheme = html.settings.theme
-const root = document.documentElement
-const dayColors = {
-  blue: "0, 150, 255",
-  forceDark: "10, 10, 20",
-  forceLight: "255, 255, 255",
+  const titleQuery = searchTitle.value.trim().toLowerCase()
+  const genreQuery = searchGenre.value
+  const authorQuery = searchAuthor.value
+
+  const filteredBooks = booksList.filter((book) => {
+    const titleMatch = book.title.toLowerCase().includes(titleQuery)
+    const genreMatch = genreQuery === "" || book.genre === genreQuery
+    const authorMatch = authorQuery === "" || book.author === authorQuery
+
+    return titleMatch, genreMatch, authorMatch
+  })
 }
 
-const nightColors = {
-  blue: "0, 150, 255",
-  forceDark: "255, 255, 255",
-  forceLight: "10, 10, 20",
-}
+searchButton.addEventListener("click", searchFormHandler)
 
+/* theme */
 const themesToggle = (event) => {
   event.preventDefault()
   const settingsOverlay = html.settings.overlay
@@ -163,17 +182,8 @@ const themesToggle = (event) => {
 const settings = html.header.settings
 settings.addEventListener("click", themesToggle)
 
-const themeColor = (theme) => {
-  const colors = theme === "day" ? dayColors : nightColors
-
-  root.style.setProperty("--color-blue", colors.blue)
-  root.style.setProperty("--color-force-dark", colors.forceDark)
-  root.style.setProperty("--color-force-light", colors.forceLight)
-}
-
-settings.addEventListener("change", themeColor)
-
-const closeSettings = html.settings.cancel
-closeSettings.addEventListener("click", () => {
-  html.settings.overlay.close()
+const themeCancel = html.settings.cancel
+themeCancel.addEventListener("click", () => {
+  const settingsOverlay = html.settings.overlay
+  settingsOverlay.close()
 })
