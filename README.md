@@ -1,7 +1,7 @@
 # MIHYON289_FTO2308_GroupB_Mihlali-Yono_IWACapstone
 📚 Web App to be audited as part of final assessment for first JS module
 This is a book search app called Book Connect.
-The first 36 books are shown when the page load. The user can load more books by clicking the showMore Button at the bottom 
+The first 36 books are shown when the page loads. The user can load more books by clicking the showMore Button at the bottom 
 of the page.
 The show more button will load 36 books at every click until there are no more books to show.
 The user can click on the different books to get a preview of the book clicked. The preview has the picture of the book, the summary, the author and the date of 
