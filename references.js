@@ -5,7 +5,7 @@ export const html = {
   },
   list: {
     items: document.querySelector("[data-list-items]"),
-    message: document.querySelector("[data-list-message]"),
+    message: document.querySelector(".list__message"),
     button: document.querySelector("[data-list-button]"),
   },
   preview: {

@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/meta/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/meta/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/meta/favicon-16x16.png">
-    <link rel="manifest" href="/meta/manifest.json">
+    <!-- <link rel="manifest" href="/meta/manifest.json"> -->
     <link rel="mask-icon" href="/meta/safari-pinned-tab.svg" color="#0096ff">
     <link rel="shortcut icon" href="/meta/favicon.ico">
     <meta name="msapplication-TileColor" content="#0a0a14">
@@ -29,8 +29,6 @@
     <script src="./mainScript.js" type="module" defer></script>
     <script src="./data.js" type="module" defer></script>
     <script type="module" src="./references.js" defer ></script>
-    <script type="module" src="./GenreAuthorSearchFunction.js.js" defer></script>
-    <script type="module" src="./showMoreBooksFunction.js" defer></script>
   </head>
   <body>
 
@@ -94,7 +92,7 @@
     </header>
 
     <main class="list">
-      <!-- <div class="list__items" data-list-items></div> -->
+      <div class="list__items" data-list-items id="booksBefore"></div>
       <div class="list__message" data-list-message>No results found. Your filters might be too narrow.</div>
       <button class="list__button" data-list-button></button>
     </main>
